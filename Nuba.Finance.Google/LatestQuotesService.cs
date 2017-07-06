@@ -37,6 +37,14 @@ namespace Nuba.Finance.Google
                 if (response.Length == 0)
                     return new Candle[0];
 
+                if ((numberOfSeconds < Frequency.EveryDay) &&
+                   (to.HasValue && to.Value.TimeOfDay.Equals(new TimeSpan(0,0,0))))
+                {
+                    // If to value is set and the time has not been set (so it's 0:00) then is set to 23:59:59 
+                    // to include values for that day in the result.
+                    to = to.Value.Add(new TimeSpan(23, 59, 59));
+                }
+                
                 var reader = new LatestCandleReader(numberOfSeconds);
                 return reader.Read(new StringReader(response))
                     .Where(c => (!from.HasValue || c.Date >= from.Value) &&

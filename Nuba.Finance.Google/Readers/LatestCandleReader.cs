@@ -10,10 +10,12 @@ namespace Nuba.Finance.Google.Readers
     {
         private static string DataLine = "DATA=";
         private static string TimeZoneOffsetLine = "TIMEZONE_OFFSET=";
+        private static string MarketOpenLine = "MARKET_OPEN_MINUTE=";
         private static string DateSpecialLine = "A";
         private readonly CultureInfo defaultCulture = new CultureInfo("en-US");
 
         private readonly int numberOfSeconds;
+        private int openTime;
         private int offset;
         private DateTime lastDateRead;
 
@@ -32,7 +34,14 @@ namespace Nuba.Finance.Google.Readers
             {
                 if (isHeader)
                 {
-                    isHeader = !line.Trim().ToUpper().Equals(DataLine);
+                    line = line.Trim().ToUpper();
+                    if (line.Contains(MarketOpenLine))
+                    {
+                        this.openTime = int.Parse(line.Substring(MarketOpenLine.Length), defaultCulture);
+                        if (this.numberOfSeconds >= Frequency.EveryDay)
+                            this.openTime = 0; // It doesn't matter
+                    }
+                    isHeader = !line.Equals(DataLine);
                 }
                 else if (line.StartsWith(TimeZoneOffsetLine))
                 {
@@ -54,19 +63,24 @@ namespace Nuba.Finance.Google.Readers
 
         private DateTime SetNewDates(string dateStr)
         {
+            DateTime currentDate;
             if (dateStr.ToUpper().StartsWith(DateSpecialLine))
             {
                 this.lastDateRead = this.ConvertToDate(dateStr.Substring(1)).Date;
-                return lastDateRead;
+                currentDate = this.lastDateRead;
+            }
+            else
+            {
+                var valueRead = double.Parse(dateStr, defaultCulture);
+                currentDate = this.lastDateRead.AddSeconds(valueRead * this.numberOfSeconds);
             }
 
-            var valueRead = double.Parse(dateStr, defaultCulture);
-            return this.lastDateRead.AddSeconds(valueRead * this.numberOfSeconds);
+            return currentDate.AddMinutes(this.openTime);
         }
 
         private DateTime ConvertToDate(string dateStr)
         {
-            return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local)
+            return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)
                 .AddSeconds(double.Parse(dateStr, defaultCulture));
         }
 
