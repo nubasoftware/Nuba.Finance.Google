@@ -15,7 +15,7 @@ namespace Nuba.Finance.Google
         /// <summary>
         /// Base Google finance URL
         /// </summary>
-        private const string BaseUrl = "http://www.google.com/finance/historical?q={0}{1}&output=csv";
+        private const string BaseUrl = "http://finance.google.com/finance/historical?q={0}{1}&output=csv";
 
         public HistoricalQuotesService()
         {
