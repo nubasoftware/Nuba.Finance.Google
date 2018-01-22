@@ -10,13 +10,13 @@ namespace Nuba.Finance.Google
     public class LatestQuotesService
     {
         private readonly RestCaller restCaller;
-        
+
         /// <summary>
         /// Base Google finance URL
         /// </summary>
-        /// <example>http://www.google.com/finance/getprices?q=QQQ&x=NASDAQ&i=86400&p=47Y&f=d,c,h,l,o,v Gets all history,
+        /// <example>http://finance.google.com/finance/getprices?q=QQQ&x=NASDAQ&i=86400&p=47Y&f=d,c,h,l,o,v Gets all history,
         /// I understand p = 47Y means bring information for the last 47 years but p = 1 means 1 day </example>
-        private const string BaseUrl = "http://www.google.com/finance/getprices?q={0}&x={1}&i={2}&p={3}&f=d,c,h,l,o,v";
+        private const string BaseUrl = "http://finance.google.com/finance/getprices?q={0}&x={1}&i={2}&p={3}&f=d,c,h,l,o,v";
 
         private const int FirstYear = 1990;
 
